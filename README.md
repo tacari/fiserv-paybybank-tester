@@ -5,12 +5,22 @@ Test application for Commerce Hub Pay by Bank integration using ConnectPay SDK.
 ## Quick Start
 
 **Python** (recommended if Node.js is blocked):
+
+Windows:
 ```bash
 pip install -r requirements.txt
 python server.py
 ```
 
+Mac/Linux:
+```bash
+pip3 install -r requirements.txt
+python3 server.py
+```
+
 **Node.js**:
+
+Windows/Mac/Linux:
 ```bash
 npm install
 node server.js
