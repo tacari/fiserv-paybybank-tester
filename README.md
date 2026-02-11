@@ -64,7 +64,7 @@ Test application for Commerce Hub Pay by Bank integration.
 
 ## What Works
 
-Steps 1-4 work completely. Step 5 (Nonce Inquiry) returns a 500 error because the endpoint isn't available in cert environment yet.
+Steps 1-4 work completely. Step 5 (Nonce Inquiry) returns a 500 error because the endpoint isn't available in cert environment yet. However, Step 6 (Charge API) still works - you can use the nonce from Step 4 to make charges.
 
 ## Requirements
 
