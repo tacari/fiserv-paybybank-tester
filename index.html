@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fiserv Pay by Bank - Test Console</title>
+  <!-- ConnectPay SDK - Commerce Hub Cert -->
+  <script src="https://connect-cert.fiservapis.com/pbb/sdk/web/v1/js/PaymentSDK.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f4f4;
+      color: #333;
+      font-size: 14px;
+    }
+
+    header {
+      background: #ff6600;
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    header span {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-left: auto;
+    }
+
+    .fiserv-logo {
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      background: #f9f9f9;
+      border-bottom: 1px solid #ddd;
+      padding: 10px 16px;
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: #555;
+      letter-spacing: 0.5px;
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      flex: 1;
+      min-width: 200px;
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none;
+      border-color: #ff6600;
+    }
+
+    .field textarea {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      resize: vertical;
+    }
+
+    .btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 3px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: #ff6600;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #e55b00;
+    }
+
+    .btn-secondary {
+      background: #666;
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: #555;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .output {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      padding: 14px;
+      border-radius: 3px;
+      min-height: 120px;
+      max-height: 400px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    .output .ok { color: #6a9955; }
+    .output .err { color: #f44747; }
+    .output .info { color: #569cd6; }
+    .output .warn { color: #ce9178; }
+
+    .status-bar {
+      background: #333;
+      color: #aaa;
+      padding: 6px 24px;
+      font-size: 11px;
+      display: flex;
+      gap: 20px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .status-bar .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .dot-green { background: #4caf50; }
+    .dot-red { background: #f44747; }
+    .dot-yellow { background: #ff9800; }
+
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ddd;
+      margin-bottom: 0;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #777;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: inherit;
+    }
+
+    .tab:hover { color: #333; }
+
+    .tab.active {
+      color: #ff6600;
+      border-bottom-color: #ff6600;
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 16px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .saved-note {
+      color: #4caf50;
+      font-size: 12px;
+      font-weight: 700;
+      display: none;
+      margin-left: 10px;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 14px 0;
+    }
+
+    .step-box {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: #fafafa;
+    }
+
+    .step-box h3 {
+      font-size: 13px;
+      color: #ff6600;
+      margin-bottom: 8px;
+    }
+
+    .step-box.done {
+      border-color: #4caf50;
+      background: #f6fff6;
+    }
+
+    .step-box.active {
+      border-color: #ff6600;
+      background: #fff8f0;
+    }
+
+    .step-result {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      padding: 8px 10px;
+      border-radius: 3px;
+      margin-top: 8px;
+      max-height: 150px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      display: none;
+    }
+
+    #sdk-container {
+      border: 2px dashed #ddd;
+      border-radius: 4px;
+      min-height: 200px;
+      background: #fafafa;
+      padding: 10px;
+    }
+
+    #sdk-container:empty::before {
+      content: 'SDK will render here after initialization (Step 4)';
+      color: #bbb;
+      display: block;
+      text-align: center;
+      padding-top: 80px;
+      font-size: 13px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px 60px;
+      color: #aaa;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="fiserv-logo">fiserv</span>
+  <h1>Pay by Bank &mdash; Test Console</h1>
+  <span>CERT Environment (connect-cert.fiservapis.com)</span>
+</header>
+
+<div class="wrap">
+
+  <!-- credentials -->
+  <div class="card">
+    <div class="card-header">API Credentials</div>
+    <div class="card-body">
+      <div class="row">
+        <div class="field">
+          <label>API Key</label>
+          <input type="text" id="apiKey" value="mAA0u08h31PbRNgDyeAaaw78clTZw5b2vESGw4q5KpxWXq83">
+        </div>
+        <div class="field">
+          <label>API Secret</label>
+          <input type="password" id="apiSecret" value="SyVDGIJSsRdMFBo4FxARnjPLKEVgi2oq59STqEJkBYhKcUOdGISAGASRoeFQNTnK">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Merchant ID (MID)</label>
+          <input type="text" id="merchantId" value="100232000000248">
+        </div>
+        <div class="field">
+          <label>Terminal ID (TID)</label>
+          <input type="text" id="terminalId" value="10000001">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveCreds()">Save Credentials</button>
+        <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
+        <span class="saved-note" id="savedNote">Saved</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- test panels -->
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('pbb')">Pay by Bank Flow</button>
+      <button class="tab" onclick="switchTab('charges')">Charges</button>
+      <button class="tab" onclick="switchTab('custom')">Custom Request</button>
+      <button class="tab" onclick="switchTab('reference')">API Reference</button>
+    </div>
+
+    <!-- Pay by Bank Flow tab (main 6-step flow) -->
+    <div class="tab-panel active" id="panel-pbb">
+      <p class="hint" style="margin-bottom:14px;">
+        Walk through the full Pay by Bank flow step by step. Each step feeds data into the next one.
+      </p>
+
+      <!-- Step 1: Create Customer -->
+      <div class="step-box" id="step1-box">
+        <h3>Step 1: Create Customer Profile</h3>
+        <p class="hint">POST /api/create-customer &mdash; Creates a customer profile in Commerce Hub. Returns a providerCustomerId.</p>
+        <div class="row" style="margin-top:8px;">
+          <div class="field">
+            <label>Merchant Customer ID</label>
+            <input type="text" id="merchantCustomerId" placeholder="Numeric ID, e.g. 123456789">
+            <span class="hint">Numeric value that identifies the customer on your side</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runStep1()">Create Customer</button>
+          <button class="btn btn-secondary" onclick="generateCustomerId()">Generate Random ID</button>
+        </div>
+        <div class="step-result" id="step1-result"></div>
+      </div>
+
+      <!-- Step 2: Get Provider Credentials -->
+      <div class="step-box" id="step2-box">
+        <h3>Step 2: Get Provider Credentials</h3>
+        <p class="hint">POST /api/provider-credentials &mdash; Gets the tokenID (accessToken) and publicKey for the SDK.</p>
+        <div class="row" style="margin-top:8px;">
+          <div class="field">
+            <label>Provider Customer ID</label>
+            <input type="text" id="providerCustomerId" placeholder="Auto-filled from Step 1">
+            <span class="hint">From Step 1 response</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runStep2()">Get Credentials</button>
+        </div>
+        <div class="step-result" id="step2-result"></div>
+      </div>
+
+      <!-- Step 3: Initialize SDK -->
+      <div class="step-box" id="step3-box">
+        <h3>Step 3: Initialize ConnectPay SDK</h3>
+        <p class="hint">CPSDK(apiKey) + configure with accessToken from Step 2. Then start enrollment.</p>
+        <div class="row" style="margin-top:8px;">
+          <div class="field">
+            <label>Access Token (tokenID from Step 2)</label>
+            <input type="text" id="accessToken" placeholder="Auto-filled from Step 2">
+            <span class="hint">Session token from provider credentials</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Config ID</label>
+            <input type="text" id="configId" value="6da0bed2-a29a-405b-8c43-a1f319765569" placeholder="Auto-selected based on enrollment type">
+            <span class="hint">Page configuration ID for the SDK. Auto-filled based on enrollment type (ManualOnly default).</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runStep3()">Initialize SDK</button>
+        </div>
+        <div class="step-result" id="step3-result"></div>
+      </div>
+
+      <!-- Step 4: Enrollment -->
+      <div class="step-box" id="step4-box">
+        <h3>Step 4: Run Enrollment</h3>
+        <p class="hint">SDK handles bank account enrollment. Returns a nonce on success.</p>
+
+        <p style="font-size:12px; font-weight:700; margin:8px 0 6px; color:#555;">ENROLLMENT TYPE</p>
+        <div class="btn-row" style="flex-wrap:wrap; margin-bottom:10px;">
+          <button class="btn btn-primary" onclick="startEnrollment('enrollment')">Enrollment (Choice)</button>
+          <button class="btn btn-secondary" onclick="startEnrollment('manual')">Manual</button>
+          <button class="btn btn-secondary" onclick="startEnrollment('bankonly')">Bank Login Only</button>
+          <button class="btn btn-secondary" onclick="startEnrollment('streamlined')">Streamlined</button>
+          <button class="btn btn-secondary" onclick="startEnrollment('microdeposit')">Micro Deposit</button>
+          <button class="btn btn-secondary" onclick="startEnrollment('relink')">Relink</button>
+          <button class="btn btn-secondary" onclick="startEnrollment('validate')">Validate</button>
+          <button class="btn btn-secondary" onclick="startEnrollment('close')">Close Account</button>
+        </div>
+
+        <p style="font-size:12px; font-weight:700; margin-bottom:6px; color:#555;">EXTRA PARAMS (optional)</p>
+        <div class="row">
+          <div class="field">
+            <label>First Name</label>
+            <input type="text" id="extraFirstName" placeholder="John">
+          </div>
+          <div class="field">
+            <label>Last Name</label>
+            <input type="text" id="extraLastName" placeholder="Doe">
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="text" id="extraEmail" placeholder="john@example.com">
+          </div>
+        </div>
+
+        <p style="font-size:12px; font-weight:700; margin:6px 0; color:#555;">SDK RENDER AREA</p>
+        <div id="sdk-container"></div>
+        <div class="step-result" id="step4-result"></div>
+      </div>
+
+      <!-- Step 5: Nonce Inquiry -->
+      <div class="step-box" id="step5-box">
+        <h3>Step 5: Nonce Inquiry</h3>
+        <p class="hint">POST /api/nonce-inquiry &mdash; Sends the nonce to get the real tokenData for charging.</p>
+        <div class="row" style="margin-top:8px;">
+          <div class="field">
+            <label>Nonce (from Step 4)</label>
+            <input type="text" id="nonce" placeholder="Auto-filled from SDK callback">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runStep5()">Run Nonce Inquiry</button>
+        </div>
+        <div class="step-result" id="step5-result"></div>
+      </div>
+
+      <!-- Step 6: Charge -->
+      <div class="step-box" id="step6-box">
+        <h3>Step 6: Charge</h3>
+        <p class="hint">POST /api/charges &mdash; Sends the charge with sourceType PaymentToken + tokenSource FISERV_PAY_BY_BANK.</p>
+        <div class="row" style="margin-top:8px;">
+          <div class="field">
+            <label>Token Data (from Step 5)</label>
+            <input type="text" id="tokenData" placeholder="Auto-filled from nonce inquiry">
+          </div>
+          <div class="field">
+            <label>Amount (USD)</label>
+            <input type="number" id="flowChargeAmount" step="0.01" min="0.01" value="1.00">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runStep6()">Send Charge</button>
+        </div>
+        <div class="step-result" id="step6-result"></div>
+      </div>
+    </div>
+
+    <!-- Charges tab (standalone) -->
+    <div class="tab-panel" id="panel-charges">
+      <p class="hint" style="margin-bottom:10px;">
+        Send a charge directly. You need a tokenData (from nonce inquiry) or use PaymentCheck with account/routing numbers.
+      </p>
+      <div class="row">
+        <div class="field">
+          <label>Amount (USD)</label>
+          <input type="number" id="chargeAmount" step="0.01" min="0.01" value="1.00">
+        </div>
+        <div class="field">
+          <label>Source Type</label>
+          <select id="sourceType">
+            <option value="PaymentToken">PaymentToken (Pay by Bank)</option>
+            <option value="PaymentCheck">PaymentCheck</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Capture</label>
+          <select id="captureFlag">
+            <option value="true">true (sale)</option>
+            <option value="false">false (auth only)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="tokenFields">
+        <hr>
+        <p class="hint">PaymentToken requires tokenData from a nonce inquiry.</p>
+        <div class="row">
+          <div class="field">
+            <label>Token Data</label>
+            <input type="text" id="chargeTokenData" placeholder="From nonce inquiry">
+          </div>
+        </div>
+      </div>
+
+      <div id="checkFields" style="display:none;">
+        <hr>
+        <p class="hint">PaymentCheck requires account + routing number.</p>
+        <div class="row">
+          <div class="field">
+            <label>Account Number</label>
+            <input type="text" id="accountNumber" placeholder="1234567890">
+          </div>
+          <div class="field">
+            <label>Routing Number</label>
+            <input type="text" id="routingNumber" placeholder="021000021">
+          </div>
+          <div class="field">
+            <label>Check Type</label>
+            <select id="checkType">
+              <option value="PERSONAL">PERSONAL</option>
+              <option value="CORPORATE">CORPORATE</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="runCharge()">Send Charge</button>
+      </div>
+    </div>
+
+    <!-- custom request tab -->
+    <div class="tab-panel" id="panel-custom">
+      <div class="row">
+        <div class="field">
+          <label>Endpoint Path</label>
+          <input type="text" id="customEndpoint" value="/payments/v1/charges" placeholder="/payments/v1/charges">
+          <span class="hint">Appended to https://connect-cert.fiservapis.com/ch</span>
+        </div>
+        <div class="field" style="max-width:120px;">
+          <label>Method</label>
+          <select id="customMethod">
+            <option value="POST">POST</option>
+            <option value="GET">GET</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Request Body (JSON)</label>
+        <textarea id="customBody" rows="12" placeholder='{"amount":{"total":1.00,"currency":"USD"},"source":{"sourceType":"PaymentToken","tokenData":"xxx","tokenSource":"FISERV_PAY_BY_BANK"}}'></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="runCustom()">Send Request</button>
+        <button class="btn btn-secondary" onclick="loadTemplate()">Load Template</button>
+      </div>
+    </div>
+
+    <!-- reference tab -->
+    <div class="tab-panel" id="panel-reference">
+      <h3 style="font-size:14px; margin-bottom:10px; color:#333;">Pay by Bank Flow - Quick Reference</h3>
+
+      <p style="font-size:12px; font-weight:700; margin-bottom:6px; color:#555;">Full Flow (6 Steps)</p>
+      <div class="output" style="min-height:auto; max-height:none; margin-bottom:12px;">1. Create Customer Profile
+   POST /api/create-customer
+   Body: { apiKey, apiSecret, merchantId, terminalId, merchantCustomerId }
+   Returns: providerCustomerId
+
+2. Get Provider Credentials
+   POST /api/provider-credentials
+   Body: { apiKey, apiSecret, merchantId, terminalId, providerCustomerId }
+   Returns: tokenID (accessToken), publicKey
+
+3. Initialize ConnectPay SDK
+   var CP = CPSDK(apiKey);
+   var sdkConfig = { accessToken: tokenID, fdCustomerId: providerCustomerId };
+   var enrollment = CP.EnrollmentOption(sdkConfig, extraParams, callbackFn);
+   enrollment.start('sdk-container');
+
+4. Enrollment (SDK handles UI)
+   Callback returns: { nonce: "xxx", transactionStatus: "APPROVED" }
+
+5. Nonce Inquiry
+   POST /api/nonce-inquiry
+   Body: { apiKey, apiSecret, merchantId, terminalId, nonce }
+   Returns: tokenData
+
+6. Charge
+   POST /api/charges
+   Body: { apiKey, apiSecret, merchantId, terminalId, amount,
+           source: { sourceType: "PaymentToken", tokenData: "xxx",
+                     tokenSource: "FISERV_PAY_BY_BANK" } }</div>
+
+      <p style="font-size:12px; font-weight:700; margin-bottom:6px; color:#555;">Commerce Hub HMAC Auth</p>
+      <div class="output" style="min-height:auto; max-height:none; margin-bottom:12px;">Headers:
+  Content-Type: application/json
+  Api-Key: {your api key}
+  Timestamp: {epoch ms}
+  Client-Request-Id: {unique id}
+  Auth-Token-Type: HMAC
+  Authorization: {HMAC-SHA256 signature, base64}
+
+HMAC: raw = apiKey + clientRequestId + timestamp + JSON.stringify(payload)
+      sig = Base64( HMAC-SHA256( raw, apiSecret ) )</div>
+
+      <p style="font-size:12px; font-weight:700; margin-bottom:6px; color:#555;">SDK Environments</p>
+      <div class="output" style="min-height:auto; max-height:none;">Cert:    https://connect-cert.fiservapis.com/pbb/sdk/web/v1/js/PaymentSDK.js
+Prod:    https://prod.api.firstdata.com/pbb/sdk/web/v1/js/PaymentSDK.js
+
+Commerce Hub Cert: https://connect-cert.fiservapis.com/ch</div>
+
+      <p style="font-size:12px; font-weight:700; margin:12px 0 6px; color:#555;">Configuration IDs (ResortCom Cert)</p>
+      <div class="output" style="min-height:auto; max-height:none;">CP.ACHPurchase        : 4b6283b5-b6fe-44b2-9ec2-7af4d721fac4
+CP.CloseAccount       : edbeeaca-d758-4f55-a26a-8e0257f3028e
+CP.GuestCheckout      : 338b629e-9e4d-4f7b-b2d7-a544ab37ea6e
+CP.ManualDeposit      : 520b3c9e-2fb5-41cf-8979-ef12da0bb2be
+CP.ManualOnly         : 6da0bed2-a29a-405b-8c43-a1f319765569 (default)
+CP.UpdateEnrollment   : be0e55b2-f0ef-4cdc-9e0c-c2e5a128908f
+
+Note: ConfigIds auto-populate based on enrollment type selected.</div>
+      <hr>
+      <p style="font-size:11px; color:#999;">
+        Docs: developer.fiserv.com/product/CommerceHub |
+        SDK: developer.fiserv.com/product/PaybyBank
+      </p>
+    </div>
+  </div>
+
+  <!-- output -->
+  <div class="card">
+    <div class="card-header">
+      Response Log
+      <button class="btn btn-secondary" style="float:right; padding:3px 10px; font-size:11px;" onclick="clearOutput()">Clear</button>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <div class="output" id="output">Ready. Enter your credentials above and run through the Pay by Bank flow.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Fiserv Pay by Bank Test Console | Internal Use | CERT Environment Only
+</footer>
+
+<div class="status-bar">
+  <span><span class="dot dot-green" id="statusDot"></span> <span id="statusText">Ready</span></span>
+  <span>SDK: connect-cert.fiservapis.com/pbb | API: connect-cert.fiservapis.com/ch</span>
+</div>
+
+<script>
+// ---- state ----
+var CP = null;
+var lastNonce = '';
+var lastTokenData = '';
+var lastProviderCustomerId = '';
+
+// load creds from localStorage if they exist
+(function() {
+  var saved = localStorage.getItem('fiserv_pbb_creds');
+  if (saved) {
+    try {
+      var s = JSON.parse(saved);
+      if (s.apiKey) document.getElementById('apiKey').value = s.apiKey;
+      if (s.apiSecret) document.getElementById('apiSecret').value = s.apiSecret;
+      if (s.merchantId) document.getElementById('merchantId').value = s.merchantId;
+      if (s.terminalId) document.getElementById('terminalId').value = s.terminalId;
+    } catch(e) {}
+  }
+})();
+
+// check if SDK loaded
+(function() {
+  if (typeof CPSDK !== 'undefined') {
+    log('ConnectPay SDK loaded from connect-cert.fiservapis.com', 'ok');
+  } else {
+    log('WARNING: ConnectPay SDK (PaymentSDK.js) did not load. Check network/CORS.', 'warn');
+    log('Steps 1-2 and 5-6 still work without the SDK.', 'info');
+  }
+})();
+
+// toggle check vs token fields on charges tab
+document.getElementById('sourceType').addEventListener('change', function() {
+  var isCheck = this.value === 'PaymentCheck';
+  document.getElementById('checkFields').style.display = isCheck ? 'block' : 'none';
+  document.getElementById('tokenFields').style.display = isCheck ? 'none' : 'block';
+});
+
+// ---- helpers ----
+function readCreds() {
+  return {
+    apiKey: document.getElementById('apiKey').value.trim(),
+    apiSecret: document.getElementById('apiSecret').value.trim(),
+    merchantId: document.getElementById('merchantId').value.trim(),
+    terminalId: document.getElementById('terminalId').value.trim()
+  };
+}
+
+function saveCreds() {
+  var c = readCreds();
+  localStorage.setItem('fiserv_pbb_creds', JSON.stringify(c));
+  var note = document.getElementById('savedNote');
+  note.style.display = 'inline';
+  setTimeout(function() { note.style.display = 'none'; }, 2000);
+}
+
+function setStatus(text, color) {
+  document.getElementById('statusText').textContent = text;
+  var dot = document.getElementById('statusDot');
+  dot.className = 'dot';
+  if (color === 'green') dot.classList.add('dot-green');
+  else if (color === 'red') dot.classList.add('dot-red');
+  else dot.classList.add('dot-yellow');
+}
+
+function log(msg, cls) {
+  var el = document.getElementById('output');
+  var line = document.createElement('span');
+  line.className = cls || '';
+  line.textContent = msg + '\n';
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function clearOutput() {
+  document.getElementById('output').textContent = '';
+}
+
+function showStepResult(stepNum, text) {
+  var el = document.getElementById('step' + stepNum + '-result');
+  el.style.display = 'block';
+  el.textContent = text;
+}
+
+function markStep(stepNum, state) {
+  var box = document.getElementById('step' + stepNum + '-box');
+  box.className = 'step-box';
+  if (state === 'done') box.classList.add('done');
+  if (state === 'active') box.classList.add('active');
+}
+
+function switchTab(name) {
+  var tabs = document.querySelectorAll('.tab');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(function(t) { t.classList.remove('active'); });
+  panels.forEach(function(p) { p.classList.remove('active'); });
+
+  document.getElementById('panel-' + name).classList.add('active');
+  var tabMap = { pbb: 0, charges: 1, custom: 2, reference: 3 };
+  if (tabMap[name] !== undefined) {
+    tabs[tabMap[name]].classList.add('active');
+  }
+}
+
+function generateCustomerId() {
+  var id = Math.floor(Math.random() * 900000000) + 100000000;
+  document.getElementById('merchantCustomerId').value = id.toString();
+}
+
+// ---- Step 1: Create Customer ----
+function runStep1() {
+  var c = readCreds();
+  if (!c.apiKey || !c.apiSecret || !c.merchantId) {
+    log('ERROR: Fill in all credentials first.', 'err');
+    return;
+  }
+
+  var custId = document.getElementById('merchantCustomerId').value.trim();
+  if (!custId) {
+    log('ERROR: Need a customer ID to create a profile. Click "Generate Random ID" if you need one.', 'err');
+    return;
+  }
+
+  markStep(1, 'active');
+  setStatus('Creating customer...', 'yellow');
+  log('--- STEP 1: Create Customer ---', 'info');
+  log('merchantCustomerId: ' + custId, '');
+
+  var body = {
+    apiKey: c.apiKey,
+    apiSecret: c.apiSecret,
+    merchantId: c.merchantId,
+    terminalId: c.terminalId,
+    merchantCustomerId: custId
+  };
+
+  fetch('/api/create-customer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  .then(function(resp) { return resp.json(); })
+  .then(function(data) {
+    log('Response:', 'info');
+    log(JSON.stringify(data, null, 2), '');
+
+    if (data.success && data.providerCustomerId) {
+      log('providerCustomerId: ' + data.providerCustomerId, 'ok');
+      document.getElementById('providerCustomerId').value = data.providerCustomerId;
+      lastProviderCustomerId = data.providerCustomerId;
+      markStep(1, 'done');
+      setStatus('Customer created', 'green');
+      showStepResult(1, 'providerCustomerId: ' + data.providerCustomerId);
+    } else {
+      log('Failed to create customer - probably a credential or merchant ID issue', 'err');
+      markStep(1, '');
+      setStatus('Step 1 failed', 'red');
+      showStepResult(1, 'FAILED: ' + JSON.stringify(data, null, 2));
+    }
+  })
+  .catch(function(err) {
+    log('Network error: ' + err.message, 'err');
+    markStep(1, '');
+    setStatus('Error', 'red');
+  });
+}
+
+// ---- Step 2: Get Provider Credentials ----
+function runStep2() {
+  var c = readCreds();
+  if (!c.apiKey || !c.apiSecret || !c.merchantId) {
+    log('ERROR: Fill in all credentials first.', 'err');
+    return;
+  }
+
+  var provCustId = document.getElementById('providerCustomerId').value.trim();
+  if (!provCustId) {
+    log('ERROR: providerCustomerId is required. Run Step 1 first.', 'err');
+    return;
+  }
+
+  markStep(2, 'active');
+  setStatus('Getting provider credentials...', 'yellow');
+  log('--- STEP 2: Get Provider Credentials ---', 'info');
+  log('providerCustomerId: ' + provCustId, '');
+
+  var configIdVal = document.getElementById('configId').value.trim();
+  if (configIdVal) {
+    log('Using configId: ' + configIdVal, 'info');
+  }
+
+  var body = {
+    apiKey: c.apiKey,
+    apiSecret: c.apiSecret,
+    merchantId: c.merchantId,
+    terminalId: c.terminalId,
+    providerCustomerId: provCustId,
+    configId: configIdVal
+  };
+
+  fetch('/api/provider-credentials', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  .then(function(resp) { return resp.json(); })
+  .then(function(data) {
+    log('Response:', 'info');
+    log(JSON.stringify(data, null, 2), '');
+
+    if (data.success && data.credentials) {
+      var tokenID = data.credentials.tokenID || '';
+      var pubKey = data.credentials.publicKey || '';
+      var cfgId = data.credentials.configId || data.credentials.pageUrl || '';
+
+      log('tokenID (accessToken): ' + tokenID, 'ok');
+      log('publicKey received: ' + pubKey.substring(0, 40) + '...', 'ok');
+      if (cfgId) log('configId: ' + cfgId, 'ok');
+      else log('configId not in response — will use default', 'info');
+
+      document.getElementById('accessToken').value = tokenID;
+      window.lastPublicKey = pubKey; // Store globally for Step 4
+      if (cfgId) document.getElementById('configId').value = cfgId;
+
+      markStep(2, 'done');
+      setStatus('Credentials received', 'green');
+      showStepResult(2, 'tokenID: ' + tokenID.substring(0, 40) + '...\npublicKey: ' + pubKey.substring(0, 40) + '...' + (cfgId ? '\nconfigId: ' + cfgId : ''));
+    } else {
+      log('Failed to get provider credentials', 'err');
+      markStep(2, '');
+      setStatus('Step 2 failed', 'red');
+      showStepResult(2, 'FAILED: ' + JSON.stringify(data, null, 2));
+    }
+  })
+  .catch(function(err) {
+    log('Network error: ' + err.message, 'err');
+    markStep(2, '');
+    setStatus('Error', 'red');
+  });
+}
+
+// ---- Step 3: Initialize SDK ----
+function runStep3() {
+  var apiKeyVal = document.getElementById('apiKey').value.trim();
+  var tokenVal = document.getElementById('accessToken').value.trim();
+
+  if (!apiKeyVal) {
+    log('ERROR: API Key required to init SDK.', 'err');
+    return;
+  }
+  if (!tokenVal) {
+    log('ERROR: Access Token required. Run Step 2 first.', 'err');
+    return;
+  }
+
+  if (typeof CPSDK === 'undefined') {
+    log('ERROR: SDK script failed to load from Commerce Hub.', 'err');
+    log('This usually means a network issue or the SDK endpoint changed. Check browser console.', 'err');
+    markStep(3, '');
+    setStatus('SDK not loaded', 'red');
+    return;
+  }
+
+  markStep(3, 'active');
+  log('--- STEP 3: Initialize SDK ---', 'info');
+
+  try {
+    CP = CPSDK(apiKeyVal);
+    log('CPSDK initialized with API key.', 'ok');
+    log('Access token ready. You can now run enrollment in Step 4.', 'ok');
+    markStep(3, 'done');
+    setStatus('SDK initialized', 'green');
+    showStepResult(3, 'SDK initialized. Ready for enrollment.');
+  } catch(e) {
+    log('SDK init error: ' + e.message, 'err');
+    markStep(3, '');
+    setStatus('SDK error', 'red');
+    showStepResult(3, 'ERROR: ' + e.message);
+  }
+}
+
+// ---- Step 4: Enrollment ----
+function buildExtraParams() {
+  var extra = {};
+  var fn = document.getElementById('extraFirstName').value.trim();
+  var ln = document.getElementById('extraLastName').value.trim();
+  var em = document.getElementById('extraEmail').value.trim();
+
+  if (fn) extra.firstName = fn;
+  if (ln) extra.lastName = ln;
+  if (em) extra.email = em;
+
+  return extra;
+}
+
+function sdkCallback(response) {
+  log('--- SDK CALLBACK ---', 'info');
+
+  // Parse response if it's a JSON string
+  if (typeof response === 'string') {
+    try {
+      response = JSON.parse(response);
+    } catch(e) {
+      log('Failed to parse SDK response', 'err');
+    }
+  }
+
+  log(JSON.stringify(response, null, 2), '');
+
+  // Check for 401 or other error codes
+  if (response.code === 401) {
+    log('ERROR: 401 Unauthorized - Config ID not authorized or not active', 'err');
+    log('This usually means:', 'warn');
+    log('  1. Config ID is not activated in the cert environment yet', 'warn');
+    log('  2. Config ID is not linked to this merchant account', 'warn');
+    log('  3. Domain needs to be whitelisted (https://localhost:3000)', 'warn');
+    log('Contact the ConnectPay team to verify config activation.', 'info');
+    markStep(4, '');
+    setStatus('SDK: 401 Unauthorized', 'red');
+    showStepResult(4, '401 UNAUTHORIZED\nConfig ID may not be active yet.\nContact ConnectPay team to verify.');
+    return;
+  }
+
+  if (response.transactionStatus === 'APPROVED') {
+    log('ENROLLMENT APPROVED', 'ok');
+    setStatus('Enrollment approved', 'green');
+    markStep(4, 'done');
+
+    if (response.nonce) {
+      lastNonce = response.nonce;
+      document.getElementById('nonce').value = response.nonce;
+      log('Nonce captured: ' + response.nonce, 'ok');
+      showStepResult(4, 'APPROVED\nnonce: ' + response.nonce);
+    }
+    log('Now run Step 5 (Nonce Inquiry) to get the tokenData.', 'info');
+  } else {
+    log('SDK STATUS: ' + response.transactionStatus, 'err');
+    markStep(4, '');
+    setStatus('SDK: ' + response.transactionStatus, 'red');
+
+    if (response.errorDetails) {
+      log('Error: ' + response.errorDetails.errorReason, 'err');
+    }
+    if (response.responseVerbiage) {
+      log('Message: ' + response.responseVerbiage, 'warn');
+    }
+    if (response.code) {
+      log('Error code: ' + response.code, 'err');
+    }
+    showStepResult(4, response.transactionStatus + '\n' + JSON.stringify(response, null, 2));
+  }
+}
+
+function startEnrollment(type) {
+  if (!CP) {
+    log('ERROR: SDK not initialized. Run Step 3 first.', 'err');
+    return;
+  }
+
+  var tokenVal = document.getElementById('accessToken').value.trim();
+  if (!tokenVal) {
+    log('ERROR: Access Token required. Run Step 2 first.', 'err');
+    return;
+  }
+
+  var configIdVal = document.getElementById('configId').value.trim();
+  var provCustId = document.getElementById('providerCustomerId').value.trim();
+
+  // Get the publicKey from Step 2 response (stored globally)
+  var pubKey = window.lastPublicKey || '';
+
+  // Auto-select configId based on enrollment type
+  var configIds = {
+    'enrollment': '6da0bed2-a29a-405b-8c43-a1f319765569',     // CP.ManualOnly (allows choice)
+    'manual': '6da0bed2-a29a-405b-8c43-a1f319765569',         // CP.ManualOnly
+    'bankonly': '6da0bed2-a29a-405b-8c43-a1f319765569',       // CP.ManualOnly (bank login)
+    'streamlined': '6da0bed2-a29a-405b-8c43-a1f319765569',    // CP.ManualOnly (or use different if provided)
+    'microdeposit': '520b3c9e-2fb5-41cf-8979-ef12da0bb2be',   // CP.ManualDeposit
+    'relink': '6da0bed2-a29a-405b-8c43-a1f319765569',         // CP.ManualOnly
+    'validate': 'be0e55b2-f0ef-4cdc-9e0c-c2e5a128908f',       // CP.UpdateEnrollment
+    'close': 'edbeeaca-d758-4f55-a26a-8e0257f3028e'           // CP.CloseAccount
+  };
+
+  // Always use the type-specific configId
+  if (configIds[type]) {
+    configIdVal = configIds[type];
+    document.getElementById('configId').value = configIdVal;
+    log('Using configId for ' + type + ': ' + configIdVal, 'info');
+  } else if (!configIdVal) {
+    log('WARNING: No configId mapped for type: ' + type, 'warn');
+  }
+
+  var sdkConfig = {
+    accessToken: tokenVal,
+    fdCustomerId: provCustId,
+    encryptionKey: pubKey
+  };
+
+  if (configIdVal) {
+    sdkConfig.configId = configIdVal;
+  }
+
+  var extra = buildExtraParams();
+
+  markStep(4, 'active');
+  log('--- STEP 4: Enrollment (' + type + ') ---', 'info');
+  log('sdkConfig: ' + JSON.stringify(sdkConfig, null, 2), '');
+  if (Object.keys(extra).length > 0) {
+    log('extraParams: ' + JSON.stringify(extra, null, 2), '');
+  }
+  setStatus('SDK: ' + type + '...', 'yellow');
+
+  // clear old SDK content
+  document.getElementById('sdk-container').innerHTML = '';
+
+  try {
+    var instance;
+    switch(type) {
+      case 'enrollment':
+        instance = CP.EnrollmentOption(sdkConfig, extra, sdkCallback);
+        break;
+      case 'manual':
+        instance = CP.ManualOnly(sdkConfig, extra, sdkCallback);
+        break;
+      case 'bankonly':
+        instance = CP.BankOnly(sdkConfig, extra, sdkCallback);
+        break;
+      case 'streamlined':
+        instance = CP.StreamlinedEnrollment(sdkConfig, extra, sdkCallback);
+        break;
+      case 'microdeposit':
+        instance = CP.ManualDeposit(sdkConfig, extra, sdkCallback);
+        break;
+      case 'relink':
+        instance = CP.Relink(sdkConfig, extra, sdkCallback);
+        break;
+      case 'validate':
+        instance = CP.AccountValidation(sdkConfig, extra, sdkCallback);
+        break;
+      case 'close':
+        instance = CP.CloseAccount(sdkConfig, extra, sdkCallback);
+        break;
+    }
+    instance.start('sdk-container');
+    log('SDK UI mounted.', 'ok');
+  } catch(e) {
+    log('SDK error: ' + e.message, 'err');
+    markStep(4, '');
+    setStatus('SDK error', 'red');
+    showStepResult(4, 'ERROR: ' + e.message);
+  }
+}
+
+// ---- Step 5: Nonce Inquiry ----
+function runStep5() {
+  var c = readCreds();
+  if (!c.apiKey || !c.apiSecret || !c.merchantId) {
+    log('ERROR: Fill in all credentials first.', 'err');
+    return;
+  }
+
+  var nonceVal = document.getElementById('nonce').value.trim();
+  if (!nonceVal) {
+    log('ERROR: Nonce is required. Run enrollment in Step 4 first.', 'err');
+    return;
+  }
+
+  markStep(5, 'active');
+  setStatus('Running nonce inquiry...', 'yellow');
+  log('--- STEP 5: Nonce Inquiry ---', 'info');
+  log('nonce: ' + nonceVal, '');
+
+  var provCustId = document.getElementById('providerCustomerId').value.trim();
+  var merchCustId = document.getElementById('merchantCustomerId').value.trim();
+
+  var body = {
+    apiKey: c.apiKey,
+    apiSecret: c.apiSecret,
+    merchantId: c.merchantId,
+    terminalId: c.terminalId,
+    nonce: nonceVal,
+    providerCustomerId: provCustId,
+    merchantCustomerId: merchCustId
+  };
+
+  fetch('/api/nonce-inquiry', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  .then(function(resp) { return resp.json(); })
+  .then(function(data) {
+    log('Response:', 'info');
+    log(JSON.stringify(data, null, 2), '');
+
+    if (data.success && data.tokenData) {
+      log('tokenData: ' + data.tokenData, 'ok');
+      document.getElementById('tokenData').value = data.tokenData;
+      document.getElementById('chargeTokenData').value = data.tokenData;
+      lastTokenData = data.tokenData;
+      markStep(5, 'done');
+      setStatus('Nonce resolved', 'green');
+      showStepResult(5, 'tokenData: ' + data.tokenData);
+    } else {
+      log('Nonce inquiry failed', 'err');
+      markStep(5, '');
+      setStatus('Step 5 failed', 'red');
+      showStepResult(5, 'FAILED: ' + JSON.stringify(data, null, 2));
+    }
+  })
+  .catch(function(err) {
+    log('Network error: ' + err.message, 'err');
+    markStep(5, '');
+    setStatus('Error', 'red');
+  });
+}
+
+// ---- Step 6: Charge ----
+function runStep6() {
+  var c = readCreds();
+  if (!c.apiKey || !c.apiSecret || !c.merchantId) {
+    log('ERROR: Fill in all credentials first.', 'err');
+    return;
+  }
+
+  var td = document.getElementById('tokenData').value.trim();
+  if (!td) {
+    log('ERROR: Token Data is required. Run Step 5 first.', 'err');
+    return;
+  }
+
+  var amount = parseFloat(document.getElementById('flowChargeAmount').value) || 1.00;
+
+  markStep(6, 'active');
+  setStatus('Sending charge...', 'yellow');
+  log('--- STEP 6: Charge ---', 'info');
+  log('tokenData: ' + td, '');
+  log('amount: $' + amount.toFixed(2), '');
+
+  var body = {
+    apiKey: c.apiKey,
+    apiSecret: c.apiSecret,
+    merchantId: c.merchantId,
+    terminalId: c.terminalId,
+    amount: amount,
+    source: {
+      sourceType: 'PaymentToken',
+      tokenData: td,
+      tokenSource: 'FISERV_PAY_BY_BANK'
+    }
+  };
+
+  fetch('/api/charges', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  .then(function(resp) { return resp.json(); })
+  .then(function(data) {
+    log('Response:', 'info');
+    log(JSON.stringify(data, null, 2), '');
+
+    if (data.success) {
+      log('CHARGE SUCCESSFUL', 'ok');
+      markStep(6, 'done');
+      setStatus('Charge OK', 'green');
+      showStepResult(6, 'SUCCESS\n' + JSON.stringify(data.data, null, 2));
+    } else {
+      log('CHARGE FAILED', 'err');
+      markStep(6, '');
+      setStatus('Charge failed', 'red');
+      showStepResult(6, 'FAILED\n' + JSON.stringify(data, null, 2));
+    }
+  })
+  .catch(function(err) {
+    log('Network error: ' + err.message, 'err');
+    markStep(6, '');
+    setStatus('Error', 'red');
+  });
+}
+
+// ---- Standalone Charges tab ----
+function runCharge() {
+  var c = readCreds();
+  if (!c.apiKey || !c.apiSecret || !c.merchantId) {
+    log('ERROR: Fill in all credentials first.', 'err');
+    return;
+  }
+
+  clearOutput();
+  setStatus('Sending charge...', 'yellow');
+
+  var amount = parseFloat(document.getElementById('chargeAmount').value) || 1.00;
+  var sourceType = document.getElementById('sourceType').value;
+  var capture = document.getElementById('captureFlag').value === 'true';
+
+  var body = {
+    apiKey: c.apiKey,
+    apiSecret: c.apiSecret,
+    merchantId: c.merchantId,
+    terminalId: c.terminalId,
+    amount: amount,
+    captureFlag: capture
+  };
+
+  if (sourceType === 'PaymentCheck') {
+    body.source = {
+      sourceType: 'PaymentCheck',
+      check: {
+        checkType: document.getElementById('checkType').value,
+        accountNumber: document.getElementById('accountNumber').value.trim(),
+        routingNumber: document.getElementById('routingNumber').value.trim()
+      }
+    };
+  } else {
+    var td = document.getElementById('chargeTokenData').value.trim();
+    body.source = {
+      sourceType: 'PaymentToken',
+      tokenData: td,
+      tokenSource: 'FISERV_PAY_BY_BANK'
+    };
+  }
+
+  log('POST /api/charges', 'info');
+  log('Amount: $' + amount.toFixed(2) + '  Source: ' + sourceType + '  Capture: ' + capture, 'info');
+  log('---', '');
+
+  fetch('/api/charges', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  .then(function(resp) { return resp.json(); })
+  .then(function(data) {
+    if (data.success) {
+      log('CHARGE SUCCESSFUL', 'ok');
+      setStatus('Charge OK', 'green');
+    } else {
+      log('CHARGE FAILED', 'err');
+      setStatus('Charge failed', 'red');
+    }
+
+    log('HTTP Status: ' + data.httpStatus, 'info');
+    log('\nResponse:', 'info');
+    log(JSON.stringify(data.data || data, null, 2), '');
+  })
+  .catch(function(err) {
+    log('Network error: ' + err.message, 'err');
+    setStatus('Error', 'red');
+  });
+}
+
+// ---- Test Connection ----
+function testConnection() {
+  var c = readCreds();
+  if (!c.apiKey || !c.apiSecret) {
+    log('ERROR: API Key and Secret are required.', 'err');
+    return;
+  }
+
+  clearOutput();
+  setStatus('Testing connection...', 'yellow');
+  log('Testing connection to Commerce Hub (CERT)...', 'info');
+  log('MID: ' + c.merchantId + '  TID: ' + c.terminalId, 'info');
+  log('---', '');
+
+  fetch('/api/test-connection', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(c)
+  })
+  .then(function(resp) { return resp.json(); })
+  .then(function(data) {
+    if (data.success) {
+      log('CONNECTION OK', 'ok');
+      if (data.note) log(data.note, 'ok');
+      setStatus('Connected', 'green');
+    } else {
+      log('CONNECTION FAILED', 'err');
+      if (data.note) log(data.note, 'err');
+      setStatus('Auth failed', 'red');
+    }
+
+    log('HTTP Status: ' + data.httpStatus, 'info');
+    if (data.rawResponse) {
+      log('\nRaw Response:', 'info');
+      log(JSON.stringify(data.rawResponse, null, 2), '');
+    }
+    if (data.errorMessage && !data.success) {
+      log('\nError: ' + data.errorMessage, 'err');
+    }
+  })
+  .catch(function(err) {
+    log('Network error: ' + err.message, 'err');
+    setStatus('Error', 'red');
+  });
+}
+
+// ---- Custom Request tab ----
+function runCustom() {
+  var c = readCreds();
+  if (!c.apiKey || !c.apiSecret) {
+    log('ERROR: Fill in credentials first.', 'err');
+    return;
+  }
+
+  clearOutput();
+  setStatus('Sending request...', 'yellow');
+
+  var endpoint = document.getElementById('customEndpoint').value.trim();
+  var method = document.getElementById('customMethod').value;
+  var bodyText = document.getElementById('customBody').value.trim();
+
+  var payload = {};
+  if (bodyText && method !== 'GET') {
+    try {
+      payload = JSON.parse(bodyText);
+    } catch(e) {
+      log('ERROR: Invalid JSON in request body.', 'err');
+      setStatus('Bad JSON', 'red');
+      return;
+    }
+  }
+
+  log(method + ' ' + endpoint, 'info');
+  if (method !== 'GET') {
+    log('\nRequest Body:', 'info');
+    log(JSON.stringify(payload, null, 2), '');
+    log('---', '');
+  }
+
+  fetch('/api/proxy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      apiKey: c.apiKey,
+      apiSecret: c.apiSecret,
+      merchantId: c.merchantId,
+      terminalId: c.terminalId,
+      endpoint: endpoint,
+      method: method,
+      payload: payload
+    })
+  })
+  .then(function(resp) { return resp.json(); })
+  .then(function(data) {
+    if (data.success) {
+      log('REQUEST OK', 'ok');
+      setStatus('OK', 'green');
+    } else {
+      log('REQUEST FAILED', 'err');
+      setStatus('Failed', 'red');
+    }
+
+    log('HTTP Status: ' + data.httpStatus, 'info');
+    log('\nResponse:', 'info');
+    log(JSON.stringify(data.data || data, null, 2), '');
+  })
+  .catch(function(err) {
+    log('Network error: ' + err.message, 'err');
+    setStatus('Error', 'red');
+  });
+}
+
+function loadTemplate() {
+  var mid = document.getElementById('merchantId').value.trim() || 'YOUR_MID';
+  var tid = document.getElementById('terminalId').value.trim() || 'YOUR_TID';
+
+  var template = {
+    amount: { total: 1.00, currency: 'USD' },
+    source: {
+      sourceType: 'PaymentToken',
+      tokenData: 'PASTE_TOKEN_DATA_HERE',
+      tokenSource: 'FISERV_PAY_BY_BANK'
+    },
+    transactionDetails: {
+      captureFlag: true
+    },
+    merchantDetails: {
+      merchantId: mid,
+      terminalId: tid
+    },
+    transactionInteraction: {
+      origin: 'ECOM'
+    }
+  };
+
+  document.getElementById('customBody').value = JSON.stringify(template, null, 2);
+}
+</script>
+
+</body>
+</html>
