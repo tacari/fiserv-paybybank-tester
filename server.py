@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import hmac
 import hashlib
+import base64
 import time
 import secrets
 import requests
@@ -22,7 +23,7 @@ def build_signature(api_key, secret, client_request_id, timestamp, payload=None)
     if payload:
         raw += json.dumps(payload, separators=(',', ':'))
     signature = hmac.new(secret.encode(), raw.encode(), hashlib.sha256).digest()
-    return hashlib.b64encode(signature).decode()
+    return base64.b64encode(signature).decode()
 
 def build_headers(api_key, secret, payload=None):
     ts = str(int(time.time() * 1000))
