@@ -40,9 +40,11 @@ def build_headers(api_key, secret, payload=None):
 
 def call_ch(path, api_key, secret, payload):
     url = CH_BASE + path
+    payload_str = json.dumps(payload, separators=(',', ':'))
     headers = build_headers(api_key, secret, payload)
+    headers['Content-Type'] = 'application/json'
     print(f'[CH] POST {url}')
-    response = requests.post(url, json=payload, headers=headers, timeout=30)
+    response = requests.post(url, data=payload_str, headers=headers, timeout=30)
     return response
 
 @app.route('/')
