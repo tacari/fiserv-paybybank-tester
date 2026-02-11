@@ -1,74 +1,71 @@
 # Fiserv Pay by Bank - Test Console
 
-Test application for Commerce Hub Pay by Bank integration using ConnectPay SDK.
+Test application for Commerce Hub Pay by Bank integration.
 
-## Quick Start
+## Setup Instructions
 
-**Python** (recommended if Node.js is blocked):
+1. **Download the zip file** from GitHub and extract it (right-click > Extract All on Windows, or double-click on Mac)
 
-Windows:
-```bash
-pip install -r requirements.txt
-python server.py
-```
+2. **Open Terminal/Command Prompt**
+   - Windows: Press Windows key, type "cmd", press Enter
+   - Mac: Press Cmd+Space, type "terminal", press Enter
 
-Mac/Linux:
-```bash
-pip3 install -r requirements.txt
-python3 server.py
-```
+3. **Navigate to the folder**
 
-**Node.js**:
+   If it extracted to your Downloads folder:
 
-Windows/Mac/Linux:
-```bash
-npm install
-node server.js
-```
+   Windows:
+   ```
+   cd Downloads\fiserv-paybybank-tester-main
+   ```
 
-Then open **https://localhost:3000** in your browser.
+   Mac:
+   ```
+   cd ~/Downloads/fiserv-paybybank-tester-main
+   ```
 
-**Note:** You'll see a certificate warning (self-signed cert for local testing). Click "Advanced" → "Proceed to localhost" to continue.
+4. **Install requirements**
 
-## What Works
+   Windows:
+   ```
+   pip install -r requirements.txt
+   ```
 
-[WORKING] **Steps 1-4**: Complete enrollment flow
-[WORKING] **SDK Integration**: ConnectPay SDK loads and works
-[WORKING] **Enrollment**: Successfully returns nonce
-[WORKING] **Charge API**: Accepts requests
+   Mac:
+   ```
+   pip3 install -r requirements.txt
+   ```
 
-[BLOCKED] **Step 5 (Nonce Inquiry)**: Returns 500 error - endpoint not available in cert yet
+5. **Start the server**
 
-## Testing
+   Windows:
+   ```
+   python server.py
+   ```
+
+   Mac:
+   ```
+   python3 server.py
+   ```
+
+6. **Open your browser** and go to: **https://localhost:3000**
+
+   You'll see a security warning (this is normal for local testing). Click "Advanced" or "Show Details" and then "Proceed to localhost" or "Visit this website".
+
+## Testing the Integration
 
 1. Open https://localhost:3000
-2. Credentials are pre-filled (ResortCom Cert environment)
-3. Click through Steps 1-4
-4. For Step 4 (Enrollment), click "Manual" and use test data:
+2. All credentials are already filled in
+3. Click through Steps 1-4 in order
+4. For Step 4 (Enrollment), click "Manual" and enter:
    - Routing: `021000021`
    - Account: `1234567890`
    - Name/Address: Any test values
 
-## Configuration
+## What Works
 
-Credentials are hardcoded in the UI for easy testing. To use different credentials, just change them in the web interface and click "Save Credentials".
-
-## Environment
-
-- **SDK**: `connect-cert.fiservapis.com/pbb` (Commerce Hub Cert)
-- **API**: `connect-cert.fiservapis.com/ch` (Commerce Hub Cert)
-- **Merchant**: ResortCom (100232000000248)
-
-## Known Issues
-
-**Nonce Inquiry (Step 5)**: Returns 500 error code 703 "Internal Error". Documentation indicates this endpoint may not be fully available in cert environment yet. Once this is resolved, the full end-to-end flow will work.
+Steps 1-4 work completely. Step 5 (Nonce Inquiry) returns a 500 error because the endpoint isn't available in cert environment yet.
 
 ## Requirements
 
-**Python**: Python 3.6+
-
-**OR**
-
-**Node.js**: Node.js v14+, npm
-
-That's it!
+Python 3.6 or higher must be installed on your computer.
