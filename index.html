@@ -353,6 +353,42 @@
           <input type="text" id="terminalId" value="10000001">
         </div>
       </div>
+
+      <hr>
+      <h4 style="font-size: 13px; color: #666; margin-bottom: 10px;">Config IDs (Merchant-Specific)</h4>
+      <p class="hint" style="margin-bottom: 10px;">Each enrollment type requires a unique config ID. Change these if using a different merchant.</p>
+
+      <div class="row">
+        <div class="field">
+          <label>Manual Only</label>
+          <input type="text" id="configManualOnly" value="6da0bed2-a29a-405b-8c43-a1f319765569" placeholder="CP.ManualOnly">
+        </div>
+        <div class="field">
+          <label>Streamlined Enrollment</label>
+          <input type="text" id="configStreamlined" value="4b8ddb2e-1cb1-4ce8-8e11-1f430f8b7290" placeholder="CP.StreamlinedEnrollment">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Manual Deposit</label>
+          <input type="text" id="configManualDeposit" value="520b3c9e-2fb5-41cf-8979-ef12da0bb2be" placeholder="CP.ManualDeposit">
+        </div>
+        <div class="field">
+          <label>Guest Checkout</label>
+          <input type="text" id="configGuestCheckout" value="338b629e-9e4d-4f7b-b2d7-a544ab37ea6e" placeholder="CP.GuestCheckout">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Close Account</label>
+          <input type="text" id="configCloseAccount" value="edbeeaca-d758-4f55-a26a-8e0257f3028e" placeholder="CP.CloseAccount">
+        </div>
+        <div class="field">
+          <label>Update Enrollment</label>
+          <input type="text" id="configUpdateEnrollment" value="be0e55b2-f0ef-4cdc-9e0c-c2e5a128908f" placeholder="CP.UpdateEnrollment">
+        </div>
+      </div>
+
       <div class="btn-row">
         <button class="btn btn-primary" onclick="saveCreds()">Save Credentials</button>
         <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
@@ -1064,16 +1100,24 @@ function startEnrollment(type) {
   // Get the publicKey from Step 2 response (stored globally)
   var pubKey = window.lastPublicKey || '';
 
-  // Auto-select configId based on enrollment type
+  // Auto-select configId based on enrollment type (read from credentials)
+  var manualOnly = document.getElementById('configManualOnly').value.trim();
+  var streamlined = document.getElementById('configStreamlined').value.trim();
+  var manualDeposit = document.getElementById('configManualDeposit').value.trim();
+  var guestCheckout = document.getElementById('configGuestCheckout').value.trim();
+  var closeAccount = document.getElementById('configCloseAccount').value.trim();
+  var updateEnrollment = document.getElementById('configUpdateEnrollment').value.trim();
+
   var configIds = {
-    'enrollment': '6da0bed2-a29a-405b-8c43-a1f319765569',     // CP.ManualOnly (allows choice)
-    'manual': '6da0bed2-a29a-405b-8c43-a1f319765569',         // CP.ManualOnly
-    'bankonly': '6da0bed2-a29a-405b-8c43-a1f319765569',       // CP.ManualOnly (bank login)
-    'streamlined': '6da0bed2-a29a-405b-8c43-a1f319765569',    // CP.ManualOnly (or use different if provided)
-    'microdeposit': '520b3c9e-2fb5-41cf-8979-ef12da0bb2be',   // CP.ManualDeposit
-    'relink': '6da0bed2-a29a-405b-8c43-a1f319765569',         // CP.ManualOnly
-    'validate': 'be0e55b2-f0ef-4cdc-9e0c-c2e5a128908f',       // CP.UpdateEnrollment
-    'close': 'edbeeaca-d758-4f55-a26a-8e0257f3028e'           // CP.CloseAccount
+    'enrollment': manualOnly,      // CP.ManualOnly (allows choice)
+    'manual': manualOnly,          // CP.ManualOnly
+    'bankonly': manualOnly,        // CP.ManualOnly (bank login)
+    'streamlined': streamlined,    // CP.StreamlinedEnrollment
+    'microdeposit': manualDeposit, // CP.ManualDeposit
+    'relink': manualOnly,          // CP.ManualOnly
+    'validate': updateEnrollment,  // CP.UpdateEnrollment
+    'close': closeAccount,         // CP.CloseAccount
+    'guest': guestCheckout         // CP.GuestCheckout
   };
 
   // Always use the type-specific configId
