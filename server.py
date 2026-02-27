@@ -219,10 +219,16 @@ def nonce_inquiry():
         print(f'[nonce-inquiry] response: {json.dumps(r.json(), indent=2)}')
 
         data = r.json()
+        token_data = None
+        if data.get('paymentTokens') and len(data['paymentTokens']) > 0:
+            token_data = data['paymentTokens'][0].get('tokenData')
+        elif data.get('source', {}).get('tokenData'):
+            token_data = data['source']['tokenData']
+
         return jsonify({
             'success': True,
             'httpStatus': r.status_code,
-            'tokenData': data.get('source', {}).get('tokenData'),
+            'tokenData': token_data,
             'data': data
         })
     except Exception as err:
