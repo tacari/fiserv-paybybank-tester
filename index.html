@@ -380,12 +380,20 @@
       </div>
       <div class="row">
         <div class="field">
+          <label>ACH Purchase</label>
+          <input type="text" id="configACHPurchase" value="4b6283b5-b6fe-44b2-9ec2-7af4d721fac4" placeholder="CP.ACHPurchase">
+        </div>
+        <div class="field">
           <label>Close Account</label>
           <input type="text" id="configCloseAccount" value="edbeeaca-d758-4f55-a26a-8e0257f3028e" placeholder="CP.CloseAccount">
         </div>
+      </div>
+      <div class="row">
         <div class="field">
           <label>Update Enrollment</label>
           <input type="text" id="configUpdateEnrollment" value="be0e55b2-f0ef-4cdc-9e0c-c2e5a128908f" placeholder="CP.UpdateEnrollment">
+        </div>
+        <div class="field" style="visibility:hidden;">
         </div>
       </div>
 
@@ -460,9 +468,12 @@
         </div>
         <div class="row">
           <div class="field">
-            <label>Config ID</label>
-            <input type="text" id="configId" value="6da0bed2-a29a-405b-8c43-a1f319765569" placeholder="Auto-selected based on enrollment type">
-            <span class="hint">Page configuration ID for the SDK. Auto-filled based on enrollment type (ManualOnly default).</span>
+            <label>Config ID <span id="configIdMode" style="font-weight:400; text-transform:none; color:#4caf50;">(auto)</span></label>
+            <div style="display:flex; gap:6px;">
+              <input type="text" id="configId" value="6da0bed2-a29a-405b-8c43-a1f319765569" placeholder="Auto-selected based on enrollment type" style="flex:1;">
+              <button class="btn btn-secondary" style="padding:6px 10px; font-size:11px; white-space:nowrap;" onclick="resetConfigId()">Reset to Auto</button>
+            </div>
+            <span class="hint">Auto-filled from enrollment type. Edit manually to override for any client.</span>
           </div>
         </div>
         <div class="btn-row">
@@ -739,6 +750,7 @@ var CP = null;
 var lastNonce = '';
 var lastTokenData = '';
 var lastProviderCustomerId = '';
+var configIdManuallySet = false;
 
 // load creds from localStorage if they exist
 (function() {
@@ -769,6 +781,13 @@ document.getElementById('sourceType').addEventListener('change', function() {
   var isCheck = this.value === 'PaymentCheck';
   document.getElementById('checkFields').style.display = isCheck ? 'block' : 'none';
   document.getElementById('tokenFields').style.display = isCheck ? 'none' : 'block';
+});
+
+// detect manual configId edits — don't auto-override when user sets their own
+document.getElementById('configId').addEventListener('input', function() {
+  configIdManuallySet = true;
+  document.getElementById('configIdMode').textContent = '(manual)';
+  document.getElementById('configIdMode').style.color = '#ff6600';
 });
 
 // ---- helpers ----
@@ -840,6 +859,14 @@ function switchTab(name) {
 function generateCustomerId() {
   var id = Math.floor(Math.random() * 900000000) + 100000000;
   document.getElementById('merchantCustomerId').value = id.toString();
+}
+
+function resetConfigId() {
+  configIdManuallySet = false;
+  document.getElementById('configIdMode').textContent = '(auto)';
+  document.getElementById('configIdMode').style.color = '#4caf50';
+  document.getElementById('configId').value = document.getElementById('configManualOnly').value.trim();
+  log('Config ID reset to auto-select mode.', 'info');
 }
 
 // ---- Step 1: Create Customer ----
@@ -1109,28 +1136,31 @@ function startEnrollment(type) {
   var streamlined = document.getElementById('configStreamlined').value.trim();
   var manualDeposit = document.getElementById('configManualDeposit').value.trim();
   var guestCheckout = document.getElementById('configGuestCheckout').value.trim();
+  var achPurchase = document.getElementById('configACHPurchase').value.trim();
   var closeAccount = document.getElementById('configCloseAccount').value.trim();
   var updateEnrollment = document.getElementById('configUpdateEnrollment').value.trim();
 
   var configIds = {
-    'enrollment': manualOnly,      // CP.ManualOnly (allows choice)
+    'enrollment': achPurchase,     // CP.ACHPurchase (enrollment choice)
     'manual': manualOnly,          // CP.ManualOnly
-    'bankonly': manualOnly,        // CP.ManualOnly (bank login)
+    'bankonly': guestCheckout,     // CP.GuestCheckout (bank login)
     'streamlined': streamlined,    // CP.StreamlinedEnrollment
     'microdeposit': manualDeposit, // CP.ManualDeposit
-    'relink': manualOnly,          // CP.ManualOnly
+    'relink': manualOnly,          // CP.ManualOnly (relink)
     'validate': updateEnrollment,  // CP.UpdateEnrollment
     'close': closeAccount,         // CP.CloseAccount
     'guest': guestCheckout         // CP.GuestCheckout
   };
 
-  // Always use the type-specific configId
-  if (configIds[type]) {
+  // Only auto-fill if user hasn't manually edited the configId field
+  if (!configIdManuallySet && configIds[type]) {
     configIdVal = configIds[type];
     document.getElementById('configId').value = configIdVal;
-    log('Using configId for ' + type + ': ' + configIdVal, 'info');
+    log('Auto-selected configId for ' + type + ': ' + configIdVal, 'info');
+  } else if (configIdManuallySet) {
+    log('Using manually set configId: ' + configIdVal, 'info');
   } else if (!configIdVal) {
-    log('WARNING: No configId mapped for type: ' + type, 'warn');
+    log('WARNING: No configId set for type: ' + type, 'warn');
   }
 
   var sdkConfig = {
