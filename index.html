@@ -828,6 +828,7 @@ var PROFILES = {
     apiSecret: 'SyVDGIJSsRdMFBo4FxARnjPLKEVgi2oq59STqEJkBYhKcUOdGISAGASRoeFQNTnK',
     merchantId: '100232000000248',
     terminalId: '10000001',
+    subscriberId: '',
     configManualOnly: '6da0bed2-a29a-405b-8c43-a1f319765569',
     configStreamlined: '4b8ddb2e-1cb1-4ce8-8e11-1f430f8b7290',
     configManualDeposit: '520b3c9e-2fb5-41cf-8979-ef12da0bb2be',
@@ -837,31 +838,34 @@ var PROFILES = {
     configUpdateEnrollment: 'be0e55b2-f0ef-4cdc-9e0c-c2e5a128908f'
   },
   epic: {
-    // TODO: fill in Epic credentials when provided
-    apiKey: '',
-    apiSecret: '',
-    merchantId: '',
-    terminalId: '',
-    configManualOnly: '',
-    configStreamlined: '',
+    // Epic Systems Helix - Cert
+    apiKey: '8H9gHcevVRPSFmgorXvAfCuc7AFbnmxlFZbxx0OPGhSf73Zw',
+    apiSecret: 't5jdYnWFrcNnj0hFNIhONJigcyblrIJqYUvOWrPkDyEIuFtftVhENkAlHMaApPza',
+    merchantId: '100537000000034',
+    terminalId: '10000001',
+    subscriberId: '44047349',
+    configManualOnly: '',           // Epic does not use manual enrollment
+    configStreamlined: 'b4c22523-b897-40d1-bb35-45d80b1a8cf6',
     configManualDeposit: '',
     configGuestCheckout: '',
     configACHPurchase: '',
-    configCloseAccount: '',
-    configUpdateEnrollment: ''
+    configCloseAccount: '6b57bfbb-fa92-4aae-ba4d-14b9fdb707cc',
+    configUpdateEnrollment: 'd9f06397-895b-4b21-bdf5-c6a35a5c358d',
+    configRelink: '5e9cdc81-059b-4c16-84c7-867fe975df8a'
   }
 };
 
 function loadProfile(name) {
   if (!name) return;
 
+  var allFields = ['apiKey','apiSecret','merchantId','terminalId','subscriberId',
+    'configManualOnly','configStreamlined','configManualDeposit',
+    'configGuestCheckout','configACHPurchase','configCloseAccount',
+    'configUpdateEnrollment','configRelink'];
+
   if (name === 'custom') {
     // Clear everything
-    var fields = ['apiKey','apiSecret','merchantId','terminalId',
-      'configManualOnly','configStreamlined','configManualDeposit',
-      'configGuestCheckout','configACHPurchase','configCloseAccount',
-      'configUpdateEnrollment'];
-    fields.forEach(function(f) {
+    allFields.forEach(function(f) {
       var el = document.getElementById(f);
       if (el) el.value = '';
     });
@@ -875,11 +879,17 @@ function loadProfile(name) {
     return;
   }
 
-  // Check if profile is empty (e.g. Epic placeholder)
+  // Check if profile is empty (e.g. placeholder)
   if (!profile.apiKey) {
     log('Profile "' + name + '" has no credentials yet. Add them in PROFILES in index.html.', 'warn');
     return;
   }
+
+  // Clear all fields first, then apply profile values
+  allFields.forEach(function(f) {
+    var el = document.getElementById(f);
+    if (el) el.value = '';
+  });
 
   Object.keys(profile).forEach(function(key) {
     var el = document.getElementById(key);
@@ -887,6 +897,9 @@ function loadProfile(name) {
   });
 
   log('Loaded profile: ' + name, 'ok');
+  if (profile.subscriberId) {
+    log('subscriberId: ' + profile.subscriberId + ' (will auto-fill in Step 5)', 'info');
+  }
   setStatus('Profile loaded: ' + name, 'green');
 }
 
