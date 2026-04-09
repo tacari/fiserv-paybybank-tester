@@ -195,30 +195,27 @@ def nonce_inquiry():
         return jsonify({'error': 'Creds required'}), 400
 
     try:
-        # Per Fiserv Pay by Bank FAQ Section 7:
-        # POST /payments-vas/v1/tokens with FISERV_PAY_BY_BANK tokenSource
-        # and customer object containing both merchant + provider customer IDs
         payload = {
             'source': {
                 'sourceType': 'PaymentToken',
                 'tokenData': c['nonce'],
-                'tokenSource': 'FISERV_PAY_BY_BANK'
+                'tokenSource': 'PAY_BY_BANK_NONCE'
             },
             'merchantDetails': {
                 'merchantId': c['merchantId'],
                 'terminalId': c['terminalId']
+            },
+            'transactionDetails': {
+                'tokenProvider': 'FISERV_PAY_BY_BANK'
             }
         }
 
-        # Customer object is required per docs - both IDs should be sent
-        if c.get('providerCustomerId') or c.get('merchantCustomerId'):
-            payload['customer'] = {}
-            if c.get('merchantCustomerId'):
-                payload['customer']['merchantCustomerId'] = c['merchantCustomerId']
-            if c.get('providerCustomerId'):
-                payload['customer']['providerCustomerId'] = c['providerCustomerId']
+        if c.get('subscriberId'):
+            payload['source']['check'] = {
+                'subscriberId': c['subscriberId']
+            }
 
-        r = call_ch('/payments-vas/v1/tokens', c['apiKey'], c['apiSecret'], payload)
+        r = call_ch('/payments-vas/v1/detokenize', c['apiKey'], c['apiSecret'], payload)
         data = r.json()
         print(f'[nonce-inquiry] HTTP {r.status_code} response: {json.dumps(data, indent=2)}')
 
