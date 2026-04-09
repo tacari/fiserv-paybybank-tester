@@ -195,30 +195,48 @@ def nonce_inquiry():
         return jsonify({'error': 'Creds required'}), 400
 
     try:
+        # Per Fiserv Pay by Bank FAQ Section 7:
+        # POST /payments-vas/v1/tokens with FISERV_PAY_BY_BANK tokenSource
+        # and customer object containing both merchant + provider customer IDs
         payload = {
             'source': {
                 'sourceType': 'PaymentToken',
                 'tokenData': c['nonce'],
-                'tokenSource': 'PAY_BY_BANK_NONCE'
+                'tokenSource': 'FISERV_PAY_BY_BANK'
             },
             'merchantDetails': {
                 'merchantId': c['merchantId'],
                 'terminalId': c['terminalId']
-            },
-            'transactionDetails': {
-                'tokenProvider': 'FISERV_PAY_BY_BANK'
             }
         }
 
-        if c.get('subscriberId'):
-            payload['source']['check'] = {
-                'subscriberId': c['subscriberId']
-            }
+        # Customer object is required per docs - both IDs should be sent
+        if c.get('providerCustomerId') or c.get('merchantCustomerId'):
+            payload['customer'] = {}
+            if c.get('merchantCustomerId'):
+                payload['customer']['merchantCustomerId'] = c['merchantCustomerId']
+            if c.get('providerCustomerId'):
+                payload['customer']['providerCustomerId'] = c['providerCustomerId']
 
-        r = call_ch('/payments-vas/v1/detokenize', c['apiKey'], c['apiSecret'], payload)
-        print(f'[nonce-inquiry] response: {json.dumps(r.json(), indent=2)}')
-
+        r = call_ch('/payments-vas/v1/tokens', c['apiKey'], c['apiSecret'], payload)
         data = r.json()
+        print(f'[nonce-inquiry] HTTP {r.status_code} response: {json.dumps(data, indent=2)}')
+
+        # Detect failure even when requests doesn't raise
+        if not r.ok:
+            err_msg = 'Nonce inquiry failed'
+            if data.get('error') and len(data['error']) > 0:
+                e0 = data['error'][0]
+                err_msg = f"{e0.get('code','')}: {e0.get('message','')}"
+                if e0.get('field'):
+                    err_msg += f" (field: {e0['field']})"
+            return jsonify({
+                'success': False,
+                'httpStatus': r.status_code,
+                'data': data,
+                'message': err_msg
+            }), r.status_code
+
         token_data = None
         if data.get('paymentTokens') and len(data['paymentTokens']) > 0:
             token_data = data['paymentTokens'][0].get('tokenData')
@@ -235,12 +253,11 @@ def nonce_inquiry():
         d = err.response.json() if hasattr(err, 'response') else None
         status = err.response.status_code if hasattr(err, 'response') else 0
         print(f'[nonce-inquiry] error: {status} {d or str(err)}')
-        helpful_msg = 'Backend returned 500 error - nonce inquiry endpoint might not be available yet in cert' if status == 500 else str(err)
         return jsonify({
             'success': False,
             'httpStatus': status,
             'data': d,
-            'message': helpful_msg
+            'message': str(err)
         }), status or 500
 
 @app.route('/api/charges', methods=['POST'])

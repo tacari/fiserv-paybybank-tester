@@ -530,8 +530,7 @@
             <input type="text" id="nonce" placeholder="Auto-filled from SDK callback">
           </div>
           <div class="field">
-            <label>Subscriber ID (optional)</label>
-            <input type="text" id="subscriberId" placeholder="Leave blank to auto-use customer ID">
+            <span class="hint">Customer IDs from Steps 1-2 are sent automatically per Fiserv docs.</span>
           </div>
         </div>
         <div class="btn-row">
@@ -1245,21 +1244,19 @@ function runStep5() {
 
   var provCustId = document.getElementById('providerCustomerId').value.trim();
   var merchCustId = document.getElementById('merchantCustomerId').value.trim();
-  var subId = document.getElementById('subscriberId').value.trim();
 
   var body = {
     apiKey: c.apiKey,
     apiSecret: c.apiSecret,
     merchantId: c.merchantId,
     terminalId: c.terminalId,
-    nonce: nonceVal
+    nonce: nonceVal,
+    providerCustomerId: provCustId,
+    merchantCustomerId: merchCustId
   };
 
-  if (subId) {
-    body.subscriberId = subId;
-  } else if (provCustId) {
-    body.subscriberId = provCustId;
-  }
+  log('providerCustomerId: ' + provCustId, '');
+  log('merchantCustomerId: ' + merchCustId, '');
 
   fetch('/api/nonce-inquiry', {
     method: 'POST',
