@@ -336,62 +336,62 @@
       <div class="row">
         <div class="field">
           <label>API Key</label>
-          <input type="text" id="apiKey" value="mAA0u08h31PbRNgDyeAaaw78clTZw5b2vESGw4q5KpxWXq83">
+          <input type="text" id="apiKey" value="" placeholder="Enter your Commerce Hub API key">
         </div>
         <div class="field">
           <label>API Secret</label>
-          <input type="password" id="apiSecret" value="SyVDGIJSsRdMFBo4FxARnjPLKEVgi2oq59STqEJkBYhKcUOdGISAGASRoeFQNTnK">
+          <input type="password" id="apiSecret" value="" placeholder="Enter your Commerce Hub API secret">
         </div>
       </div>
       <div class="row">
         <div class="field">
           <label>Merchant ID (MID)</label>
-          <input type="text" id="merchantId" value="100232000000248">
+          <input type="text" id="merchantId" value="" placeholder="Your merchant ID">
         </div>
         <div class="field">
           <label>Terminal ID (TID)</label>
-          <input type="text" id="terminalId" value="10000001">
+          <input type="text" id="terminalId" value="" placeholder="Your terminal ID">
         </div>
       </div>
 
       <hr>
       <h4 style="font-size: 13px; color: #666; margin-bottom: 10px;">Config IDs (Merchant-Specific)</h4>
-      <p class="hint" style="margin-bottom: 10px;">Each enrollment type requires a unique config ID. Change these if using a different merchant.</p>
+      <p class="hint" style="margin-bottom: 10px;">Each enrollment type requires a unique config ID provisioned by Fiserv for the merchant.</p>
 
       <div class="row">
         <div class="field">
           <label>Manual Only</label>
-          <input type="text" id="configManualOnly" value="6da0bed2-a29a-405b-8c43-a1f319765569" placeholder="CP.ManualOnly">
+          <input type="text" id="configManualOnly" value="" placeholder="CP.ManualOnly UUID">
         </div>
         <div class="field">
           <label>Streamlined Enrollment</label>
-          <input type="text" id="configStreamlined" value="4b8ddb2e-1cb1-4ce8-8e11-1f430f8b7290" placeholder="CP.StreamlinedEnrollment">
+          <input type="text" id="configStreamlined" value="" placeholder="CP.StreamlinedEnrollment UUID">
         </div>
       </div>
       <div class="row">
         <div class="field">
           <label>Manual Deposit</label>
-          <input type="text" id="configManualDeposit" value="520b3c9e-2fb5-41cf-8979-ef12da0bb2be" placeholder="CP.ManualDeposit">
+          <input type="text" id="configManualDeposit" value="" placeholder="CP.ManualDeposit UUID">
         </div>
         <div class="field">
           <label>Guest Checkout</label>
-          <input type="text" id="configGuestCheckout" value="338b629e-9e4d-4f7b-b2d7-a544ab37ea6e" placeholder="CP.GuestCheckout">
+          <input type="text" id="configGuestCheckout" value="" placeholder="CP.GuestCheckout UUID">
         </div>
       </div>
       <div class="row">
         <div class="field">
           <label>ACH Purchase</label>
-          <input type="text" id="configACHPurchase" value="4b6283b5-b6fe-44b2-9ec2-7af4d721fac4" placeholder="CP.ACHPurchase">
+          <input type="text" id="configACHPurchase" value="" placeholder="CP.ACHPurchase UUID">
         </div>
         <div class="field">
           <label>Close Account</label>
-          <input type="text" id="configCloseAccount" value="edbeeaca-d758-4f55-a26a-8e0257f3028e" placeholder="CP.CloseAccount">
+          <input type="text" id="configCloseAccount" value="" placeholder="CP.CloseAccount UUID">
         </div>
       </div>
       <div class="row">
         <div class="field">
           <label>Update Enrollment</label>
-          <input type="text" id="configUpdateEnrollment" value="be0e55b2-f0ef-4cdc-9e0c-c2e5a128908f" placeholder="CP.UpdateEnrollment">
+          <input type="text" id="configUpdateEnrollment" value="" placeholder="CP.UpdateEnrollment UUID">
         </div>
         <div class="field" style="visibility:hidden;">
         </div>
@@ -470,7 +470,7 @@
           <div class="field">
             <label>Config ID <span id="configIdMode" style="font-weight:400; text-transform:none; color:#4caf50;">(auto)</span></label>
             <div style="display:flex; gap:6px;">
-              <input type="text" id="configId" value="6da0bed2-a29a-405b-8c43-a1f319765569" placeholder="Auto-selected based on enrollment type" style="flex:1;">
+              <input type="text" id="configId" value="" placeholder="Auto-selected based on enrollment type" style="flex:1;">
               <button class="btn btn-secondary" style="padding:6px 10px; font-size:11px; white-space:nowrap;" onclick="resetConfigId()">Reset to Auto</button>
             </div>
             <span class="hint">Auto-filled from enrollment type. Edit manually to override for any client.</span>
